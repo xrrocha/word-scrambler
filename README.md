@@ -1,7 +1,7 @@
 ![](docs/img/k4jd-legible-word-scrambler.png)
 
 ![](docs/img/tl-dr.png)
-**This article presents a Java implementation of a "legible word scrambler" and
+This article presents a Java implementation of a "legible word scrambler" and
 contrasts it with an equivalent Kotlin implementation that showcases Kotlin's
 strengths. The reader is expected to be proficient with Java.
 
