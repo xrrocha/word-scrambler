@@ -4,11 +4,8 @@
 **This article presents a Java implementation of a "legible word scrambler" and
 contrasts it with an equivalent Kotlin implementation that showcases Kotlin's
 strengths. The reader is expected to be proficient with Java.
-_Aoccdrnig to a rscheearch at Cmabrigde Uinervtisy, it deosn’t mttaer in waht
-oredr the Itteers in a wrod are, the olny iprmoetnt tihng is taht the frist
-and lsat Itteer be at the rghit pclae.  The rset can be a toatl mses and
-you can sitll raed it wouthit porbelm. Tihs is bcuseae the  huamn mnid
-deos not raed ervey lteter by istlef, but the wrod as a wlohe_.**
+
+![](docs/img/cambridge-reserch.png)
 
 ## What's in a Word?
 
