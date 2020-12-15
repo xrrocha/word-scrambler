@@ -5,7 +5,7 @@ This article presents a Java implementation of a "legible word scrambler" and
 contrasts it with an equivalent Kotlin implementation that showcases Kotlin's
 strengths. The reader is expected to be proficient with Java.
 
-![](docs/img/cambridge-reserch.png)
+![](docs/img/cambridge-research.png)
 
 ## What's in a Word?
 
