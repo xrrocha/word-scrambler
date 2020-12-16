@@ -244,7 +244,7 @@ val reader = File(filename).reader()
 we're actually implying:
 
 ```kotlin
-var reader: java.io.InputStreamReader =
+val reader: java.io.InputStreamReader =
  /*new*/ java.io.File(filename).reader()
 ```
 
@@ -323,7 +323,7 @@ Here, Kotlin is much more concise (and readable) because:
   enrich existing classes with handy, macro-like functionality
   (more on this below)
 - All exceptions are treated as unchecked
-- Common lambda patterns, like joining results in a `String`, are idiomatic
+- Common lambda patterns, like collecting results in a `String`, are idiomatic
 
 👉 A note on terminology: Kotlin uniformly calls executable units _functions_,
 rather than _methods_. For a function to be deemed a method it must be
@@ -546,7 +546,7 @@ in mind the lambda inside the `while` is actually a boolean _expression_,
 not a statement!
 
 Whenever all characters in the inner letter region are the same in the
-shuffled array and in the input string we have a false scrambling, and we must
+shuffled array and in the input text we have a false scrambling, and we must
 re-shuffle.
 
 The corresponding Kotlin code is arguably simpler and more readable despite
@@ -661,7 +661,7 @@ only appear inside functions.
 
 ### Kotlin Objects
 
-We've mentioned "objects" above. What on Earth is a Kotlin _object_?
+We've mentioned "objects" twice so far. What on Earth is a Kotlin _object_?
 
 A Kotlin object is a singleton instance that may (or may not) extend a class,
 implement interfaces, and have internal members.
@@ -788,7 +788,7 @@ Kotlin has gained traction in the recent years in the Android world,
 thanks in no small part to
 [Google's endorsement of it](https://www.infoworld.com/article/3197337/google-endorses-kotlin-for-android-development.html)
 as their preferred Android language. Kotlin has also gained lots of traction
-in the JVM backend world as well with
+in the JVM backend world with
 [Spring openly supporting its use](https://spring.io/blog/2017/01/04/introducing-kotlin-support-in-spring-framework-5-0).
 
 Beyond the JVM, Kotlin also [compiles to native binaries](https://kotlinlang.org/docs/reference/native-overview.html)
