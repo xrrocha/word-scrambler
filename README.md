@@ -121,7 +121,7 @@ public class WordScrambler {
 
     // Copy input text to output array
     final var result = 
-            text.toCharArray();
+      text.toCharArray();
 
     // Create randomizer for this run
     final var random = new Random();
@@ -143,9 +143,8 @@ public class WordScrambler {
             final var rndIdx = start + 
               random.nextInt(length);
             // Swap current and random chars
-            final var save = 
-              result[rndIdx];
-            result[rndIdx] = result[i];
+            final var save = result[i];
+            result[i] = result[rndIdx];
             result[i] = save;
           }
           // Ensure shuffling took place!
@@ -258,11 +257,10 @@ is a mere 54.
 
 Unlike some other languages, such brevity is _not_ achieved at the expense of
 readability; quite the contrary. It could be argued that, to the casual reader,
-the Kotlin version is probably easier to follow than the Java one. Again, this
-is by design.
+the Kotlin version is probably easier to follow than the Java one.
 
-For example, Java lambdas allow for concise, crisp code; often one-liners.
-However, things can get complicated as show below.
+While Java lambdas allow for concise, crisp code (often one-liners),
+things can get complicated as show below.
 
 Compare the following Kotlin code (stolen from our scrambler's `main` method):
 
