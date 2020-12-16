@@ -1,9 +1,6 @@
-![](img/tl-dr.png)
 This article presents a Java implementation of a "legible word scrambler" and
 contrasts it with an equivalent Kotlin implementation that showcases Kotlin's
 strengths. The reader is assumed to be proficient with Java.
-
-![](img/cambridge-research.png)
 
 ## What's in a Word?
 
