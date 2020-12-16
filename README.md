@@ -92,9 +92,9 @@ all other, non-alphabetic content (whitespace, punctuation) unchanged.
 
 Consider the following quote and its scrambled form:
 
-🄸🄵 🅈🄾🅄 🅃🅁🅈 🅃🄾 🄵🄰🄸🄻, 🄰🄽🄳 🅂🅄🄲🄲🄴🄴🄳, 🅆🄷🄸🄲🄷 🄷🄰🅅🄴 🅈🄾🅄 🄳🄾🄽🄴? ― 🄶🄴🄾🅁🄶🄴 🄲🄰🅁🄻🄸🄽
+🄸'🄼 🅃🅆🄾 🅆🄸🅃🄷 🄽🄰🅃🅄🅁🄴 ― 🅆🄾🄾🄳🅈 🄰🄻🄻🄴🄽
 
-🄸🄵 🅈🄾🅄 🅃🅁🅈 🅃🄾 🄵🄸🄰🄻, 🄰🄽🄳 🅂🄴🄲🄴🅄🄲🄳, 🅆🄷🄲🄸🄷 🄷🅅🄰🄴 🅈🄾🅄 🄳🄽🄾🄴? ― 🄶🄾🅁🄴🄶🄴 🄲🄻🄸🅁🄰🄽
+🄸'🄼 🅃🅆🄾 🅆🅃🄸🄷 🄽🄰🅃🅁🅄🄴 ― 🅆🄾🄳🄾🅈 🄰🄴🄻🄻🄽
 
 Note that nothing changes length and (except for inner letters, of course)
 nothing else changes position either.
@@ -107,56 +107,63 @@ All we need is the starting and ending position of each word; neat!
 
 ## First in Java...
 
-Given all this, our complete Java implementation is shown below in all its
-shining glory:
+Armed with this knowledge, our complete Java implementation is shown below
+in all its shining glory:
 
 ```java
 public class WordScrambler {
 
-  // 4 or more latin letters with 2 or more distinct inner letters
-  private static final Pattern WORD_REGEX = Pattern.compile(
-          "\\p{IsLatin}(\\p{IsLatin})\\1*(?!\\1)\\p{IsLatin}\\p{IsLatin}+");
+  // 4+ latin letters, 2+ distinct inners
+  private static final Pattern WORD_REGEX = 
+    Pattern.compile("\\p{IsLatin}(\\p{IsLatin})\\1*(?!\\1)\\p{IsLatin}\\p{IsLatin}+");
 
-  // Scramble words within a given plain text
-  public static String scrambleWords(String inputText) {
+  // Scramble words within text
+  public static String 
+    scrambleWords(String text) {
 
     // Copy input text to output array
-    final var resultChars = inputText.toCharArray();
+    final var result = 
+            text.toCharArray();
 
     // Create randomizer for this run
     final var random = new Random();
 
     // Examine text looking for word matches
-    WORD_REGEX.matcher(inputText).results().forEach(match -> {
-      // Define range of *inner*  letters to be shuffled
-      final var start = match.start() + 1; // second
-      final var end = match.end() - 1; // penultimate
-      final var length = end - start;
-
-      do {
-        // Shuffle inner letter array
-        for (var i = start; i < end; i++) {
-          // Choose a random index in region
-          final var randomIndex = start + random.nextInt(length);
-          // Swap current char and random char
-          final var save = resultChars[randomIndex];
-          resultChars[randomIndex] = resultChars[i];
-          resultChars[i] = save;
-        }
-        // Ensure shuffled array is different from original one!
-      } while (IntStream.range(start, end).allMatch(i ->
-              resultChars[i] == inputText.charAt(i)
-      )); // do/while
-    }); // forEach
+    WORD_REGEX.matcher(text).results()
+      .forEach(match -> {
+        // 2nd letter
+        final var start = 
+          match.start() + 1;
+        // Penultimate letter
+        final var end = match.end() - 1;
+        final var length = end - start;
+  
+        do {
+          // Shuffle inner letter array
+          for (var i = start; i < end; i++) {
+            // Choose random index in region
+            final var rndIdx = 
+              start + random.nextInt(length);
+            // Swap current and random chars
+            final var save = result[rndIdx];
+            result[rndIdx] = result[i];
+            result[i] = save;
+          }
+          // Ensure shuffling took place!
+        } while (IntStream.range(start, end)
+            .allMatch(i ->
+              result[i] == text.charAt(i)
+          )); // do/while
+      }); // forEach
 
     // Return scrambled text as string
-    return new String(resultChars);
+    return new String(result);
   }
 }
 ```
 
-The above code should be self-explanatory for the trained Java eye
-(or so one can hope 😉.)
+For the trained Java eye, the above code should be self-explanatory
+(or so one can hope 😉)
 
 We offer plenty of dispelling commentary below so read on!
 
@@ -170,37 +177,43 @@ package wscrambler
 
 import java.io.File
 
-// 4 or more latin letters with 2 or more distinct inner letters
+// 4+ latin letters, 2+ distinct inners
 private val WORD_REGEX =
-  """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+""".toRegex()
+  """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+"""
+      .toRegex()
 
-// Scramble words within a given plain text
-fun scrambleWords(inputText: String): String {
+// Scramble words within text
+fun scrambleWords(text: String): String {
 
   // Copy input text to output array
-  val resultChars = inputText.toCharArray()
+  val result = text.toCharArray()
 
   // Examine text looking for word matches
-  WORD_REGEX.findAll(inputText).forEach { match ->
-    // Define range of letters to be shuffled
-    val range = match.range.first + 1 until match.range.last
-    do {
-      // Shuffle inner letter array
-      for (i in range) {
-        val randomIndex: Int = range.random()
-        // Swap current char and random char
-        resultChars[randomIndex] = resultChars[i].also {
-          resultChars[i] = resultChars[randomIndex]
+  WORD_REGEX.findAll(text).forEach { match->
+      // Define range of *inner* letters
+      val range = match.range.first + 1
+        until match.range.last
+      do {
+        // Shuffle inner letter array
+        for (i in range) {
+          // Choose random index in region
+          val rndIdx = range.random()
+         // Swap current and random chars
+          result[rndIdx] = result[i].also {
+              result[i] =  result[rndIdx]
+          }
         }
-      }
-      // Ensure shuffled array is different from original one!
-    } while (range.all { resultChars[it] == inputText[it] })
-  }
+          // Ensure shuffling took place!
+      } while (range.all { 
+          result[it] == text[it] 
+        })
+    }
 
   // Return scrambled text as string
-  return String(resultChars)
+  return String(result)
 }
 ```
+
 
 Again, to the trained Java eye, the above code should be readily
 understandable. Anything obscure in either implementation should
@@ -225,16 +238,19 @@ val reader = File(filename).reader()
 we're actually saying:
 
 ```kotlin
-var reader: java.io.InputStreamReader = /*new*/ java.io.File(filename).reader() 
+var reader: java.io.InputStreamReader = 
+  /*new*/ java.io.File(filename).reader() 
 ```
 
 which is Kotlinese for Java's:
 
 ```java
-final var reader = new InputStreamReader(new FileInputStream(filename));
+final var reader = 
+  new InputStreamReader(
+    new FileInputStream(filename));
 ```
 
-(sàns the handling of `FileNotFoundException`.)
+(sàns the handling of `FileNotFoundException`)
 
 ### Kotlin is Compact
 
@@ -247,41 +263,48 @@ the Kotlin version is probably easier to follow than the Java one. Again, this
 is by design.
 
 For example, Java lambdas allow for concise, crisp code; often one-liners.
-However, things can get complicated like show below.
+However, things can get complicated as show below.
 
 Compare the following Kotlin code (stolen from our scrambler's `main` method):
 
 ```kotlin
-// Collect file readers from args (or stdin if no args)
+// Collect file readers from args (or stdin)
 val readers =
-  if (args.isNotEmpty()) args.map { File(it).reader() }
-  else listOf(System.`in`.reader())
-// Swallow all readers into a single string
-val content = readers.joinToString("\n") { it.readText() }
+  if (args.isNotEmpty()) 
+    args.map { File(it).reader() }
+  else 
+    listOf(System.`in`.reader())
+  // Swallow all readers into single string
+  val content = readers.joinToString("\n") { 
+    it.readText() 
+  }
 ```
 
-with its Java counterpart:
+and its Java counterpart:
 
 ```java
-// Collect file readers from args (or stdin if no args)
+// Collect file readers from args (or stdin)
 final Stream<BufferedReader> readers;
 if (args.length > 0) {
-  readers = Arrays.stream(args).map(filename -> {
-    try {
-      return new BufferedReader(new FileReader(filename));
-    } catch (Exception e) {
-      // No checked exceptions in lambdas
-      throw new RuntimeException(e); // appease the compiler
-    }
-  });
+  readers = Arrays.stream(args)
+    .map(filename -> {
+      try {
+        return new BufferedReader(
+          new FileReader(filename));
+      } catch (Exception e) {
+        // No checked exceptions in lambdas
+        throw new RuntimeException(e);
+      }
+    });
 } else {
   readers = Stream.of(
-    new BufferedReader(new InputStreamReader(System.in)));
+    new BufferedReader(
+     new InputStreamReader(System.in)));
 }
 // Swallow all readers into a single string
 final var content = readers
-        .flatMap(BufferedReader::lines)
-        .collect(Collectors.joining("\n"));
+  .flatMap(BufferedReader::lines)
+  .collect(Collectors.joining("\n"));
 ```
 
 Here, Kotlin is much more concise (and readable) because:
@@ -321,13 +344,15 @@ import java.util.stream.*;
 Where in Java we say:
 
 ```java
-final var wordRegex = Pattern.compile("\\p{InLatin}{4,}")
+final var wordRegex = 
+  Pattern.compile("\\p{InLatin}{4,}")
 ```
 
 in Kotlin, we say:
 
 ```kotlin
-val wordRegex = """\p{InLatin}{4,}""".toRegex()
+val wordRegex =
+  """\p{InLatin}{4,}""".toRegex()
 ```
 
 This looks as if `String` possessed a `toRegex()` method to convert it to a
@@ -361,11 +386,12 @@ function's return type if it's patently obvious. The above `String.toRegex()`
 function is better spelled as:
 
 ```kotlin
-fun String.toRegex() = Regex(Pattern.compile(this))
+fun String.toRegex() = 
+  Regex(Pattern.compile(this))
 ```
 
 Note also that, in Kotlin, when using triple quotes around strings, we don't
-need to escape the contents. Thus, where in Java we _have to_ escape:
+need to escape the contents. Thus, while in Java we _have to_ escape:
 
 ```java
 """\\p{InLatin}{4,}"""
@@ -378,10 +404,10 @@ in Kotlin, we don't:
 ```
 
 👉 BTW, Java's regex character class`\p{IsLatin}` is shorthand for
-`[a-zA-ZÀ-ÿ]`, where the Unicode range `[À-ÿ]` contains -only- the
+`[a-zA-ZÀ-ÿ]`, where the Unicode range `[À-ÿ]` contains (only) the
 accented Latin letters, both upper and lowercase
 
-### ... But We're Not Using `\p{InLatin}{4,}`
+### ... But We're Not Using `\p{InLatin}{4,}`!
 
 Yes, if we just needed to match four or more latin letters then
 `\p{IsLatin}{4,}` would suffice.
@@ -427,24 +453,29 @@ Where, in our `scrambleWords(String)` Java method, we wrote:
 
 ```java
 // Examine text looking for word matches
-WORD_REGEX.matcher(inputText).results().forEach(match -> {
-  // Define range of *inner*  letters to be shuffled
-  final var start = match.start() + 1; // second
-  final var end = match.end() - 1; // penultimate
-  final var length = end - start;
-  // ... shuffling stuff ...
-}
+WORD_REGEX.matcher(text).results()
+  .forEach(match -> {
+    // Second letter
+    final var start = match.start() + 1;
+    // Penultimate letter
+    final var end = match.end() - 1;
+    final var length = end - start;
+    // ... shuffling stuff ...
+  }
 ```
 
 In Kotlin we write:
 
 ```kotlin
 // Examine text looking for word matches
-WORD_REGEX.findAll(inputText).forEach { match ->
-  // Define range of letters to be shuffled
-  val range = match.range.first + 1 until match.range.last
-  // ... shuffling stuff ...
-}
+WORD_REGEX.findAll(text)
+  .forEach { match ->
+    // Define range of inner letters
+    val range = 
+      match.range.first + 1 
+        until match.range.last
+    // ... shuffling stuff ...
+  }
 ```
 
 In Kotlin, ranges are first-class citizens: we can iterate over them and
@@ -456,11 +487,12 @@ Thanks to Kotlin ranges the following Java code:
 // Shuffle inner letter array
 for (var i = start; i < end; i++) {
   // Choose a random index in region
-  final var randomIndex = start + random.nextInt(length);
-  // Swap current char and random char
-  final var save = resultChars[randomIndex];
-  resultChars[randomIndex] = resultChars[i];
-  resultChars[i] = save;
+  final var rndIdx = 
+    start + random.nextInt(length);
+  // Swap current and random chars
+  final var save = result[rndIdx];
+  result[rndIdx] = result[i];
+  result[i] = save;
 }
 ```
 
@@ -468,11 +500,11 @@ becomes:
 
 ```kotlin
 // Shuffle inner letter array
-for (i in range) { // Look ma: no i = 0; i < length; i++
-  val randomIndex: Int = range.random() // built-in random
-  // Swap current char and random char
-  resultChars[randomIndex] = resultChars[i].also {
-    resultChars[i] = resultChars[randomIndex]
+for (i in range) {
+  val rndIdx: Int = range.random()
+  // Swap current and random chars
+  result[rndIdx] = result[i].also {
+    result[i] = result[rndIdx]
   }
 }
 ```
@@ -494,10 +526,11 @@ implementations:
 // Java
 do {
   // ... shuffling stuff...
-  // Ensure shuffled array is different from original one!
-  } while((IntStream.range(start, end).allMatch(i ->
-      resultChars[i] == inputText.charAt(i)
-    });
+  // Ensure shuffling took place!
+  } while((IntStream.range(start, end)
+      .allMatch(i ->
+        result[i] == text.charAt(i)
+  });
 ```
 
 The multi-line `do/while` bit above might look a bit weird to some, but bear
@@ -520,15 +553,16 @@ being based, too, on a boolean lambda expression:
 ```kotlin
 do {
   // ... shuffling stuff...
-  // Ensure shuffled array is different from original one!
-} while (range.all { resultChars[it] == inputText[it] })
+  // Ensure shuffling took place!
+} while (range.all { 
+    result[it] == text[it] })
 ```
 
 Here `it` is the implicit named assigned to the lambda parameter when one
 is not explicitly declared.
 
-Note how both arrays (`resultChars`) and strings (`inputText`) are uniformly
-indexed with the `[]`operator. This is also true of collections such as `List`
+Note how both arrays (`result`) and strings (`text`) are uniformly
+indexed with the `[]` operator. This is also true of collections such as `List`
 and `Map`!
 
 ### The `main` Function
@@ -547,8 +581,8 @@ fun main(args: Array<String>) {
 We can execute it with:
 
 ```bash
-$ kotlin example.EchoKt Testing   one    two   three...
-Testing one two three...
+$ kotlin example.EchoKt Testing one two three
+Testing one two three
 ```
 
 Note `main`'s (synthesized) fully-qualified class name is formed concatenating:
@@ -561,7 +595,9 @@ just like collections! They're indexed with `[]`, as in Java, and are as
 efficient as their Java counterparts.
 
 ```kotlin
-val words: Array<String> = arrayOf("out", "of", "mind", "back", "in", "five")
+val words = arrayOf(
+    "out", "of", "mind", 
+    "back", "in", "five")
 println(words[2]) // prints "mind"
 ```
 
@@ -569,30 +605,31 @@ If a `main` function requires arguments they can be omitted, and the function
 is still executable:
 
 ```kotlin
-fun main() {
-  println("Greetings Earth!")
-}
+fun main() = println("Greetings Earth!")
 ```
 
 For illustration purposes here is the complete Kolin implementation of the
 `main` for our legible word scrambler:
 
 ```kotlin
-// Scramble words from files (or stdin) to stdout
+// Scramble words from files/stdin to stdout
 fun main(args: Array<String>) {
 
-  // Collect file readers from args (or stdin if no args)
+  // Collect file readers from args/stdin
   val readers =
-    if (args.isNotEmpty()) args.map { File(it).reader() }
-    // in: quoted because it's reserved (but can be used!)
-    else listOf(System.`in`.reader())
+    if (args.isNotEmpty()) 
+      args.map { File(it).reader() }
+    else
+      // in: quoted because reserved
+      listOf(System.`in`.reader())
 
-  // Swallow all readers into a single string
-  val content = readers.joinToString("\n") { it.readText() }
+  // Swallow all readers into single string
+  val content = readers.joinToString("\n") { 
+    it.readText() 
+  }
 
   // Scramble words and print to stdout
-  val scrambledContent = scrambleWords(content)
-  println(scrambledContent)
+  println(scrambleWords(content))
 }
 ```
 
@@ -604,13 +641,14 @@ is also true of the `WORD_REGEX` value.
 
 👉 A note on terminology: Kotlin uniformly calls executable units _functions_,
 rather than _methods_. For a function to be deemed a method it must be
-contained in an object or a class; it must have a _target_.
+contained in an object or a class; it must have a _target_. 
 
 Functions `scrambleWords` and `main`, as well as value `WORD_REGEX`, belong to
 their enclosing `wscrambler` _package_ and are referred to like thus:
 
 ```kotlin
-val scrambledGreeting = wscrambler.scrambleWords("I come in peace")
+val scrambledGreeting = 
+  wscrambler.scrambleWords("I come in peace")
 ```
 
 Also noticeable is that package value `WORD_REGEX` is `private` and, thus,
@@ -619,12 +657,13 @@ visible only inside the `wscrambler` package.
 ```kotlin
 package wscrambler
 
-// 4 or more latin letters with 2 or more distinct inner letters
+// 4+ latin letters, 2+ distinct inners
 private val WORD_REGEX =
-  """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+""".toRegex()
+  """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+"""
+      .toRegex()
 ```
 
-So, yes, in Kotlin, a package can directly contain values, variables,
+So, in Kotlin, a package can directly contain values, variables,
 functions, objects, classes, annotations; the entire zoo.
 
 Executable statements are _not_ allowed inside packages, though. They can
@@ -651,20 +690,25 @@ One sensible way to organize things would be:
 package wscrambler
 
 object WordScrambler {
-  // Regex compiled only once; at class/object initialization,
-  // ... and inaccessible to others, even in the same package
+  // Regex compiled only once:
+  // At object initialization,
+  // Inaccessible to others
+  // Even in the same package
   private val WORD_REGEX =
-    """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+""".toRegex()
+    """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+"""
+        .toRegex()
     
-  fun scrambleWords(inputText: String): String {
+  fun scrambleWords(text: String): String {
     // scrambling logic goes here...
   }
 }
 
 // more package stuff ...
+
 fun main() {
-  // Function call qualified with its enclosing object name
-  println(WordScrambler.scrambleWords("I'm two with nature -- Woody Allen"))
+  // Function called w/qualified name
+  println(WordScrambler.scrambleWords(
+    "I'm two with nature -- Woody Allen"))
 }
 ```
 
@@ -673,8 +717,8 @@ we'd call static members. A companion object, however, is much more than a
 container for static stuff: it doesn't (have to) extend its associated class,
 it may implement interfaces and it may have its own members.
 
-Stretching out our example we could conceive of an "ultra-generic"
-implementation like:
+Stretching out our example we could conceive of an (admittedly smelly)
+"ultra-generic" implementation like:
 
 ```kotlin
 package scrambler;
@@ -682,21 +726,25 @@ package scrambler;
 class Scrambler(private val regex: Regex) {
   companion object {
     private val WORD_REGEX =
-      """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+""".toRegex()
-    fun scramble(text: String): String = scramble(WORD_REGEX)
-    fun scramble(text: String, regex: Regex) {
-          // Regex-agnostic scrambling code goes here...
+      """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+"""
+          .toRegex()
+    fun scramble(text: String) = 
+      scramble(WORD_REGEX)
+    fun scramble(text: String, 
+                 regex: Regex) {
+          // Regex-agnostic code here...
       }
   }
-  // Instance implementation delegates to companion object
-  fun scramble(text: String) = Scrambler.scramble(regex)
+  // Instance delegates to companion
+  fun scramble(text: String) = 
+    Scrambler.scramble(regex)
 }
 ```
 
-Kotlin doesn't support the notion of static members like Java does (it
+Kotlin doesn't support the notion of static members as Java does (it
 doesn't need them.) It does, however, transparently play nice with Java's
-static members and where they are _required_ annotations can be used to specify
-them.
+static members and where they are _required_ annotations can be used to
+specify them.
 
 ```kotlin
 package wscrambler
@@ -706,23 +754,27 @@ class Scrambler(private val regex: Regex) {
         private val WORD_REGEX =
             """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+""".toRegex()
 
-        @JvmStatic
-        // Invocable with "kotlin wscrambler.Scrambler testing one two three"
+        @JvmStatic // A Java static method
+        // FQN: wscrambler.Scrambler
         fun main(args: Array<String>) {
-            println(scramble(args.joinToString(" "), WORD_REGEX))
+          println(scramble(
+            args.joinToString(" "), 
+            WORD_REGEX))
         }
-        fun scramble(text: String, regex: Regex) {
-            // Regex-agnostic scrambling code goes here...
+        fun scramble(text: String, 
+                     regex: Regex) {
+          // Regex-agnostic code here...
         }
     }
 
-    fun scramble(text: String) = Scrambler.scramble(text, regex)
+    fun scramble(text: String) = 
+      Scrambler.scramble(text, regex)
 }
 ```
 
 👉 Also, classes and functions are public by default (which reduces verbosity.)
 Classes, however, are _closed_ (`final`) by default which discourages
-(abuse of) inheritance.
+"unintended" inheritance abuse.
 
 ## Conclusion
 
@@ -736,7 +788,5 @@ its use.
 
 Beyond the JVM, Kotlin also [compiles to native binaries](https://kotlinlang.org/docs/reference/native-overview.html)
 (via [LLVM](https://llvm.org/)) as well as [to Javascript](https://kotlinlang.org/docs/reference/js-overview.html).
-What's not to love?
 
-The source code for this divertimento is available
-[on Github](https://github.com/xrrocha/word-scrambler)
+What's not to love?

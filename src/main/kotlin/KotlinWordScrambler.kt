@@ -38,7 +38,7 @@ object KotlinWordScrambler {
       do {
         // Shuffle inner letter array
         for (i in range) {
-          val randomIndex: Int = range.random()
+          val randomIndex = range.random()
           // Swap current char and random char
           resultChars[randomIndex] = resultChars[i].also {
             resultChars[i] = resultChars[randomIndex]
