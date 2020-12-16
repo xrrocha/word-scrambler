@@ -784,10 +784,12 @@ Classes, however, are _closed_ (`final`) by default which discourages
 Uff! a rather long ride! You made it this far: kudos! You're on
 your way to becoming a fulfilled Kotlin developer.
 
-Kotlin has gained traction in the Android world, thanks in no small part to
-Google's endorsement of it as their preferred Android language. Kotlin has
-also gained lots of traction in the backend as well with Spring openly
-supporting its use.
+Kotlin has gained traction in the recent years in the Android world, 
+thanks in no small part to
+[Google's endorsement of it](https://www.infoworld.com/article/3197337/google-endorses-kotlin-for-android-development.html)
+as their preferred Android language. Kotlin has also gained lots of traction
+in the JVM backend world as well with
+[Spring openly supporting its use](https://spring.io/blog/2017/01/04/introducing-kotlin-support-in-spring-framework-5-0.)
 
 Beyond the JVM, Kotlin also [compiles to native binaries](https://kotlinlang.org/docs/reference/native-overview.html)
 (via [LLVM](https://llvm.org/)) as well as [to Javascript](https://kotlinlang.org/docs/reference/js-overview.html).
