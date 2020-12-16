@@ -266,7 +266,7 @@ things can get complicated as show below.
 Compare the following Kotlin code (stolen from our scrambler's `main` method):
 
 ```kotlin
-// Swallow all readers into one string
+// Collect readers from args/stdin
 val readers =
   if (args.isNotEmpty()) 
     args.map { File(it).reader() }
@@ -282,7 +282,7 @@ val content = readers.joinToString("\n") {
 and its Java counterpart:
 
 ```java
-// Collect file readers from args/or stdin
+// Collect readers from args/stdin
 final Stream<BufferedReader> readers;
 if (args.length > 0) {
   readers = Arrays.stream(args)
@@ -333,7 +333,7 @@ used without importing) is limited to package `java.lang`, Kotlin's prelude
 includes a carefully selected set of additional packages that covers a lot
 of the most commonly used classes (I/O, ranges, collections, text, etc.)
 
-Our Java implementation, on the other hand, we require 9 imports that can
+In our Java implementation, on the other hand, we require 9 imports that can
 be abbreviated, at most, to:
 
 ```java
@@ -387,7 +387,7 @@ Here:
 When a function is a simple one-liner we can define it with an equals sign and
 do without the curly braces and the `return` statement. We can also omit the
 function's return type if it's patently obvious. The above `String.toRegex()`
-function is better spelled as:
+function is more idiomatically spelled as:
 
 ```kotlin
 fun String.toRegex() = 
@@ -500,7 +500,7 @@ for (var i = start; i < end; i++) {
 }
 ```
 
-becomes:
+becomes, simply:
 
 ```kotlin
 // Shuffle inner letter array
@@ -519,12 +519,13 @@ be invoked without providing a randomizer. That's why our Kotlin
 implementation doesn't have  a `Random` instance like the Java one does.
 
 Note also how we exploit the `also` extension function to simplify swapping.
-It may look "overly idiomatic," but it allows for some showing off... 😏
+It may look "overly idiomatic," but it nicely accomodates some showing 
+off... 😏
 
 
 ### Boolean Lambda Expressions
 
-The above shuffling loop is enclosed in a `do/while` loop in both
+Our shuffling logic is enclosed in a `do/while` loop in both
 implementations:
 
 ```java
@@ -533,18 +534,18 @@ do {
   // ... shuffling stuff...
   // Ensure shuffling took place!
   } while(IntStream.range(start, end)
-        .allMatch(i ->
-          result[i] == text.charAt(i)
+      .allMatch(i ->
+        result[i] == text.charAt(i)
   }));
 ```
 
-The multi-line `do/while` bit above might look a bit weird to some, but bear
-in mind the lambda condition is actually a boolean _expression_, not a
+The multi-line `while` condition might look a bit unusual to some, but bear
+in mind the lambda inside is actually a boolean _expression_, not a
 statement!
 
-The predicate passed to the `allMatch` method requires that, for all indices
-in the range, the corresponding character in the result array coincides with
-the corresponding character in the input string.
+The predicate passed to the `allMatch` functional method requires that, for 
+all indices in the range, the corresponding character in the result array 
+coincides with the corresponding character in the input string.
 
 Whenever all characters in the inner letter region are the same in the
 shuffled array and in the input string we have a false scrambling, and we must
@@ -581,14 +582,16 @@ fun main(args: Array<String>) {
 }
 ```
 
-We can execute it with:
+We execute it with:
 
 ```bash
-$ kotlin example.EchoKt Testing 1 2 3
-Testing 1 2 3
+$ kotlin example.EchoKt Testing 1 2 3...
+Testing 1 2 3...
 ```
 
-Note `main`'s (synthesized) fully-qualified class name is formed concatenating:
+Note `main`'s (synthesized) fully-qualified class name is formed 
+concatenating:
+
 - The package name
 - The file name, and
 - The "`Kt`" suffix
@@ -605,7 +608,7 @@ val words = arrayOf(
 println(words[2]) // prints "mind"
 ```
 
-If a `main` function requires arguments they can be omitted, and the function
+If a `main` function requires no arguments they can be omitted, and the function
 is still executable:
 
 ```kotlin
@@ -613,7 +616,7 @@ fun main() = println("Greetings Earth!")
 ```
 
 For illustration purposes here is the complete Kolin implementation of the
-`main` for our legible word scrambler:
+`main` function for our word scrambler:
 
 ```kotlin
 // Scramble from files/stdin to stdout
@@ -701,10 +704,11 @@ fun main() {
 }
 ```
 
-Kotlin classes can have associated _companion objects_ holding what in Javaland
-we'd call static members. A companion object, however, is much more than a
-container for static stuff: it doesn't (have to) extend its associated class,
-it may implement interfaces and it may have its own members.
+Kotlin classes can have associated _companion objects_ holding what in 
+Java-land we'd call static members. A companion object, however, is much 
+more than a container for static stuff: it doesn't (have to) extend its
+associated class, it may implement interfaces and it may have its own 
+members.
 
 Stretching out our example we could conceive of an (admittedly smelly)
 "ultra-generic" implementation like:
@@ -744,7 +748,7 @@ class Scrambler(private val regex:Regex){
             """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+""".toRegex()
 
         @JvmStatic // JVM static method
-        // FQN: wscrambler.Scrambler
+        // CLI FQN: wscrambler.Scrambler
         fun main(args: Array<String>) {
           println(scramble(
             args.joinToString(" "), 
