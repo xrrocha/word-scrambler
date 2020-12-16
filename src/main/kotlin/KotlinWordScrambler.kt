@@ -8,23 +8,6 @@ object KotlinWordScrambler {
   private val WORD_REGEX =
     """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+""".toRegex()
 
-  @JvmStatic
-  // Scramble words from files (or stdin) to stdout
-  fun main(args: Array<String>) {
-
-    // Collect file readers from args (or stdin if no args)
-    val readers =
-      if (args.isNotEmpty()) args.map { File(it).reader() }
-      else listOf(System.`in`.reader())
-
-    // Swallow all readers into a single string
-    val content = readers.joinToString("\n") { it.readText() }
-
-    // Scramble words and print to stdout
-    val scrambledContent = scrambleWords(content)
-    println(scrambledContent)
-  }
-
   // Scramble words within a given plain text
   fun scrambleWords(inputText: String): String {
 
@@ -50,5 +33,22 @@ object KotlinWordScrambler {
 
     // Return scrambled text as string
     return String(resultChars)
+  }
+
+  @JvmStatic
+  // Scramble words from files (or stdin) to stdout
+  fun main(args: Array<String>) {
+
+    // Collect file readers from args (or stdin if no args)
+    val readers =
+      if (args.isNotEmpty()) args.map { File(it).reader() }
+      else listOf(System.`in`.reader())
+
+    // Swallow all readers into a single string
+    val content = readers.joinToString("\n") { it.readText() }
+
+    // Scramble words and print to stdout
+    val scrambledContent = scrambleWords(content)
+    println(scrambledContent)
   }
 }
