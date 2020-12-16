@@ -165,7 +165,7 @@ public class WordScrambler {
 For the trained Java eye, the above code should be self-explanatory
 (or so one can hope 😉)
 
-We offer plenty of dispelling commentary below so read on!
+We offer plenty of clarifying commentary below so read on!
 
 ## ...Then in Kotlin
 
@@ -274,9 +274,10 @@ val readers =
     listOf(System.`in`.reader())
 
 // Swallow all readers into one string
-val content = readers.joinToString("\n") { 
-  it.readText() 
-}
+val content = 
+  readers.joinToString("\n") { 
+    it.readText() 
+  }
 ```
 
 and its Java counterpart:
@@ -475,7 +476,7 @@ In Kotlin we write:
 WORD_REGEX.findAll(text)
   .forEach { match ->
     // Define range of inner letters
-    val range = 
+    val range: IntRange = 
       match.range.first + 1 
         until match.range.last
     // ... shuffling stuff ...
@@ -483,7 +484,7 @@ WORD_REGEX.findAll(text)
 ```
 
 In Kotlin, ranges are first-class citizens: we can iterate over them and
-treat them as lambda targets (map, filter, fold, etc.)
+also treat them as lambda targets (map, filter, fold, etc.)
 
 Thanks to Kotlin ranges the following Java code:
 
@@ -518,8 +519,8 @@ Interestingly, ranges have their own `random()` extension function that can
 be invoked without providing a randomizer. That's why our Kotlin 
 implementation doesn't have  a `Random` instance like the Java one does.
 
-Note also how we exploit the `also` extension function to simplify swapping.
-It may look "overly idiomatic," but it nicely accomodates some showing 
+Note how we exploit the `also` extension function to simplify swapping.
+It may look "overly idiomatic," but it nicely accommodates some showing 
 off... 😏
 
 
