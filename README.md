@@ -428,7 +428,7 @@ least 2 distinct characters then Dr. Jekyll becomes Mr. Hyde:
 
 Ouch! 😀
 
-This regular expression is composed of the following five parts:
+This regular expression is comprised of the following five parts:
 
 1. `\p{IsLatin}`: we require the first character to be a Latin letter
 2. `(\p{IsLatin})`: we require the second character to be a Latin letter as
