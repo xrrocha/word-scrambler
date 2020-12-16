@@ -1,2 +1,2 @@
-rootProject.name = "k4jd-word-scrambler"
+rootProject.name = "word-scrambler"
 
