@@ -1,7 +1,7 @@
 ![](docs/img/tl-dr.png)
 This article presents a Java implementation of a "legible word scrambler" and
 contrasts it with an equivalent Kotlin implementation that showcases Kotlin's
-strengths. The reader is assumed to be proficient with Java.
+strengths. The reader is assumed to be proficient with Java. 
 
 ![](docs/img/cambridge-research.png)
 
@@ -104,6 +104,8 @@ incarnations.
 All we need is the starting and ending position of each word; neat!
 
 ## First in Java...
+
+> _Code split for readability on small-screen devices_
 
 Armed with this knowledge, our complete Java implementation is shown below
 in all its shining glory:
