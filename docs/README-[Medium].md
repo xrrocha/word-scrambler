@@ -1,9 +1,9 @@
-![](docs/img/tl-dr.png)
-This repo presents a Java implementation of a "legible word scrambler" and
+![](img/tl-dr.png)
+This article presents a Java implementation of a "legible word scrambler" and
 contrasts it with an equivalent Kotlin implementation that showcases Kotlin's
 strengths. The reader is assumed to be proficient with Java.
 
-![](docs/img/cambridge-research.png)
+![](img/cambridge-research.png)
 
 ## What's in a Word?
 
@@ -202,60 +202,109 @@ of the most commonly used classes (I/O, ranges, collections, text, etc.)
 In our Java implementation, on the other hand, we require 9 imports that can
 be abbreviated to, at most:
 
-https://gist.github.com/xrrocha/cf27aa99c88a1a43c170d596f2fe31bajava
-final var wordRegex =
-  Pattern.compile("\\p{InLatin}{4,}")
-https://gist.github.com/xrrocha/fb36bfa8c568c59808521b2377287ffakotlin
-val wordRegex =
-  """\p{InLatin}{4,}""".toRegex()
-https://gist.github.com/xrrocha/036163abef53c487af6d89324cb38d53kotlin
-fun String.toRegex(): Regex {
-    return Regex(Pattern.compile(this))
-}
-https://gist.github.com/xrrocha/f6f35c59337bda4c8473d4d0ce2862e1kotlin
-fun String.toRegex() =
-  Regex(Pattern.compile(this))
-https://gist.github.com/xrrocha/140f8b8f6629de4ebab120e1312e74a4java
-// Two backslashes
-"""\\p{InLatin}{4,}"""
-https://gist.github.com/xrrocha/4b4db51cd1b27a32016581f06a73aa8ckotlin
-// One backslash
-"""\p{InLatin}{4,}""""""
-https://gist.github.com/xrrocha/b114c3e1e9ff3023a5eba79a07b41b5cregexp
-\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+
-https://gist.github.com/xrrocha/6062e533fec2064de2f692356550ad98java
-// Examine text looking for matches
-WORD_REGEX.matcher(text).results()
-  .forEach(match -> {
-    // Second letter
-    final var start = match.start() + 1;
-    // Penultimate letter
-    final var end = match.end() - 1;
-    final var length = end - start;
-    // ... shuffling stuff ...
-  }
-https://gist.github.com/xrrocha/a24a180549fa5a5dafa2da66085ec9d4kotlin
-// Examine text looking for matches
-WORD_REGEX.findAll(text)
-  .forEach { match ->
-    // Define range of inner letters
-    val range: IntRange =
-      match.range.first + 1
-        until match.range.last
-    // ... shuffling stuff ...
-  }
-https://gist.github.com/xrrocha/8db080ad96c6efec1a57c2fddc9ce91djava
-// Shuffle inner letter array
-for (var i = start; i < end; i++) {
-  // Choose a random index in region
-  final var rndIdx =
-    start + random.nextInt(length);
-  // Swap current/random chars
-  final var save = result[rndIdx];
-  result[rndIdx] = result[i];
-  result[i] = save;
-}
+https://gist.github.com/xrrocha/cf27aa99c88a1a43c170d596f2fe31ba
+
+### Kotlin Extension Functions
+
+Where in Java we say:
+
+https://gist.github.com/xrrocha/fb36bfa8c568c59808521b2377287ffa
+
+in Kotlin, we say:
+
+https://gist.github.com/036163abef53c487af6d89324cb38d53
+
+This looks as if `String` possessed a `toRegex()` method to convert it to a
+regular expression (which, of course, it doesn't.)
+
+This is an instance of _extension function_: a function that can be attributed
+to an existing class even if we don't have access to that class's source code
+or, as is the case with `String`, even if it's a system, final class!
+
+If we wanted to implement the `toRegex()` extension ourselves we'd say:
+
+https://gist.github.com/xrrocha/f6f35c59337bda4c8473d4d0ce2862e1
+
+Here:
+
+- The name of the target class to be "extended" is prepended to the function name
+- Inside the function, `this` refers to the target instance of the "extended"
+  class
+- The function's return type is specified by the trailing "`: Regex`." In Kotlin
+  types are specified _after_ variable names.
+
+## More on Crispness
+
+When a function is a simple one-liner we can define it with an equals sign and
+do without the curly braces and the `return` statement. We can also omit the
+function's return type if it's patently obvious. The above `String.toRegex()`
+function is more idiomatically spelled as:
+
+https://gist.github.com/xrrocha/140f8b8f6629de4ebab120e1312e74a4
+
+Note also that, in Kotlin, when using triple quotes around strings, we don't
+need to escape the contents. Thus, while in Java we _have to_ escape:
+
+https://gist.github.com/xrrocha/4b4db51cd1b27a32016581f06a73aa8c
+
+in Kotlin, we don't:
+
+https://gist.github.com/xrrocha/b114c3e1e9ff3023a5eba79a07b41b5c
+
+### But... We're Not Using `\p{InLatin}{4,}`
+
+No, we aren't. When we want to ensure the inner letters contain at
+least 2 distinct characters then Dr. Jekyll becomes Mr. Hyde:
+
+https://gist.github.com/xrrocha/6062e533fec2064de2f692356550ad98
+
+Ouch! 😀
+
+This regular expression is comprised of the following five parts:
+
+1. `\p{IsLatin}`: we require the first character to be a Latin letter
+2. `(\p{IsLatin})`: we require the second character to be a Latin letter as
+   well but this time we enclose it in parentheses. This enables us to
+   refer to this second letter (as `\1`) later in the same regular expression
+3. `\1*`: we allow for the third character (and any subsequent characters)
+   to be repetitions of the second letter. The second letter is referenced
+   as `\1` and the `*` quantifier allows it to be repeated zero or more times
+4. `(?!\1)\p{IsLatin}`: the nub of our regex! We require a Latin letter
+   such that it is _not_ equal to the second letter (`(?!\1)`). This is a
+   _back-reference negation_
+5. `\p{IsLatin}+`: after the previous, non-equal-to-the-second letter we
+   allow for one or more (`+`) trailing letters
+
+Thus, this regular expression:
+
+|Matches...|But not...|Because...             |
+|:--------:|:--------:|:---------------------:|
+|Kotlin    |C         |Just 1 letter          |
+|Gödel     |in        |Just 2 letters         |
+|neato     |Zöe       |Just 3 letters         |
+|compsci   |cool      |All inner letters equal|
+
+
+### Kotlin Ranges: Less Looping, More Power
+
+Where, in our `scrambleWords(String)` Java method, we wrote:
+
+https://gist.github.com/xrrocha/a24a180549fa5a5dafa2da66085ec9d4
+
+In Kotlin we write:
+
+https://gist.github.com/xrrocha/8db080ad96c6efec1a57c2fddc9ce91d
+
+In Kotlin, ranges are first-class citizens: we can iterate over them and
+also treat them as lambda targets (map, filter, fold, etc.)
+
+Thanks to Kotlin ranges the following Java code:
+
 https://gist.github.com/xrrocha/10b588952988091cf73f85c15dffbd18
+
+becomes, simply:
+
+https://gist.github.com/xrrocha/92ed032f03390258fa0d008f84a2f57f
 
 Interestingly, ranges have their own `random()` extension function that can
 be invoked without providing a randomizer. That's why our Kotlin
@@ -271,7 +320,7 @@ showing off... 😏
 Our shuffling logic is enclosed in a `do/while` loop in both
 implementations:
 
-https://gist.github.com/xrrocha/92ed032f03390258fa0d008f84a2f57f
+https://gist.github.com/xrrocha/7df92303eb1b69e0270f6bce873b5c28
 
 The multi-line `while` condition might look a bit unusual to some, but bear
 in mind the lambda inside the `while` is actually a boolean _expression_,
@@ -284,7 +333,7 @@ re-shuffle.
 The corresponding Kotlin code is arguably simpler and more readable despite
 being based, too, on a boolean lambda expression:
 
-https://gist.github.com/xrrocha/7df92303eb1b69e0270f6bce873b5c28
+https://gist.github.com/xrrocha/321d03ada7e077ae7c87ac9ecda9a202
 
 Here `it` is the implicit name assigned to the lambda parameter when one
 is not explicitly declared.
