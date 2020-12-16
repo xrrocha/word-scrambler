@@ -201,7 +201,7 @@ fun scrambleWords(text: String): String{
           val rndIdx = range.random()
          // Swap current/random chars
           result[rndIdx]=result[i].also {
-              result[i] =  result[rndIdx]
+              result[i] = result[rndIdx]
           }
         }
           // Ensure shuffling took place!
@@ -222,10 +222,10 @@ hopefully be clarified by the explanations below.
 
 ### Kotlin is Familiar
 
-Yes, seasoned Java developers have little difficulty parsing the above
+Seasoned Java developers should have little difficulty parsing the above
 Kotlin code even if a few constructs don't have obvious Java counterparts.
 
-This is by design: Kotlin was designed to depart as little as possible from
+This is by design: Kotlin was conceived to depart as little as possible from
 established Java syntax. This is also true of API's: JVM Kotlin builds upon
 familiar Java API's while  retaining compatibility and enriching them in
 intuitive ways.
@@ -236,7 +236,7 @@ Thus, when we say:
 val reader = File(filename).reader()
 ```
 
-we're actually saying:
+we're actually implying:
 
 ```kotlin
 var reader: java.io.InputStreamReader = 
@@ -248,7 +248,8 @@ which is Kotlinese for Java's:
 ```java
 final var reader = 
   new InputStreamReader(
-    new FileInputStream(filename));
+    new FileInputStream(
+      new File(filename)));
 ```
 
 ### Kotlin is Compact
@@ -276,6 +277,7 @@ val readers =
 // Swallow all readers into one string
 val content = 
   readers.joinToString("\n") { 
+    // Read all file as a string
     it.readText() 
   }
 ```
@@ -399,12 +401,14 @@ Note also that, in Kotlin, when using triple quotes around strings, we don't
 need to escape the contents. Thus, while in Java we _have to_ escape:
 
 ```java
+// Two backslashes
 """\\p{InLatin}{4,}"""
 ```
 
 in Kotlin, we don't:
 
 ```kotlin
+// One backslash
 """\p{InLatin}{4,}""""""
 ```
 
@@ -412,13 +416,13 @@ in Kotlin, we don't:
 `[a-zA-ZÀ-ÿ]`, where the Unicode range `[À-ÿ]` contains (only) the
 accented Latin letters, both upper and lowercase
 
-### ... But We're Not Using `\p{InLatin}{4,}`!
+### But... We're Not Using `\p{InLatin}{4,}`!
 
 Yes, if we just needed to match four or more latin letters then
 `\p{IsLatin}{4,}` would suffice.
 
 But when we want to ensure the inner letters contain at least
-2 distinct characters then Dr. Jekyll becomes Mr. Hyde:
+2 distinct characters then... Dr. Jekyll becomes Mr. Hyde:
 
 ```regexp
 \p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+
@@ -541,8 +545,8 @@ do {
 ```
 
 The multi-line `while` condition might look a bit unusual to some, but bear
-in mind the lambda inside is actually a boolean _expression_, not a
-statement!
+in mind the lambda inside the `while` is actually a boolean _expression_, 
+not a statement!
 
 The predicate passed to the `allMatch` functional method requires that, for 
 all indices in the range, the corresponding character in the result array 
@@ -735,7 +739,7 @@ class Scrambler(private val regex:Regex){
 }
 ```
 
-Kotlin doesn't support the notion of static members as Java does (it
+Kotlin doesn't possess the notion of static members as Java does (it
 doesn't need them.) It does, however, transparently play nice with Java's
 static members and where they are _required_ annotations can be used to
 specify them.
