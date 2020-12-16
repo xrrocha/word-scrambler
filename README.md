@@ -142,7 +142,7 @@ public class WordScrambler {
             // Choose random inner index
             final var rndIdx = start + 
               random.nextInt(length);
-            // Swap current and random chars
+            // Swap current/random chars
             final var save = result[i];
             result[i] = result[rndIdx];
             result[i] = save;
@@ -183,13 +183,14 @@ private val WORD_REGEX =
     .toRegex()
 
 // Scramble words within text
-fun scrambleWords(text: String): String {
+fun scrambleWords(text: String): String{
 
   // Copy input text to output array
   val result = text.toCharArray()
 
   // Examine text looking for matches
-  WORD_REGEX.findAll(text).forEach { match->
+  WORD_REGEX.findAll(text)
+    .forEach { match->
       // Define range of inner letters
       val range = match.range.first + 1
         until match.range.last
@@ -199,7 +200,7 @@ fun scrambleWords(text: String): String {
           // Choose random region index
           val rndIdx = range.random()
          // Swap current/random chars
-          result[rndIdx] = result[i].also{
+          result[rndIdx]=result[i].also {
               result[i] =  result[rndIdx]
           }
         }
@@ -265,14 +266,14 @@ things can get complicated as show below.
 Compare the following Kotlin code (stolen from our scrambler's `main` method):
 
 ```kotlin
-// Collect file readers from args/stdin
+// Swallow all readers into one string
 val readers =
   if (args.isNotEmpty()) 
     args.map { File(it).reader() }
   else 
     listOf(System.`in`.reader())
 
-// Swallow all readers into single string
+// Swallow all readers into one string
 val content = readers.joinToString("\n") { 
   it.readText() 
 }
@@ -281,7 +282,7 @@ val content = readers.joinToString("\n") {
 and its Java counterpart:
 
 ```java
-// Collect file readers from args (or stdin)
+// Collect file readers from args/or stdin
 final Stream<BufferedReader> readers;
 if (args.length > 0) {
   readers = Arrays.stream(args)
@@ -299,7 +300,7 @@ if (args.length > 0) {
     new BufferedReader(
      new InputStreamReader(System.in)));
 }
-// Swallow all readers into single string
+// Swallow all readers into one string
 final var content = readers
   .flatMap(BufferedReader::lines)
   .collect(Collectors.joining("\n"));
@@ -315,6 +316,11 @@ Here, Kotlin is much more concise (and readable) because:
   (more on this below)
 - All exceptions are treated as unchecked
 - Common lambda patterns, like joining results in a `String`, are idiomatic
+
+👉 A note on terminology: Kotlin uniformly calls executable units _functions_,
+rather than _methods_. For a function to be deemed a method it must be
+contained in an object or a class; it must have a _target_. Otherwise,
+functions stand on their own.
 
 ### (Far) Fewer Imports!
 
@@ -487,7 +493,7 @@ for (var i = start; i < end; i++) {
   // Choose a random index in region
   final var rndIdx = 
     start + random.nextInt(length);
-  // Swap current and random chars
+  // Swap current/random chars
   final var save = result[rndIdx];
   result[rndIdx] = result[i];
   result[i] = save;
@@ -501,7 +507,7 @@ becomes:
 for (i in range) {
   // Choose a random index in region
   val rndIdx: Int = range.random()
-  // Swap current and random chars
+  // Swap current/random chars
   result[rndIdx] = result[i].also {
     result[i] = result[rndIdx]
   }
@@ -526,10 +532,10 @@ implementations:
 do {
   // ... shuffling stuff...
   // Ensure shuffling took place!
-  } while((IntStream.range(start, end)
-      .allMatch(i ->
-        result[i] == text.charAt(i)
-  });
+  } while(IntStream.range(start, end)
+        .allMatch(i ->
+          result[i] == text.charAt(i)
+  }));
 ```
 
 The multi-line `do/while` bit above might look a bit weird to some, but bear
@@ -578,8 +584,8 @@ fun main(args: Array<String>) {
 We can execute it with:
 
 ```bash
-$ kotlin example.EchoKt Testing one two three
-Testing one two three
+$ kotlin example.EchoKt Testing 1 2 3
+Testing 1 2 3
 ```
 
 Note `main`'s (synthesized) fully-qualified class name is formed concatenating:
@@ -610,10 +616,10 @@ For illustration purposes here is the complete Kolin implementation of the
 `main` for our legible word scrambler:
 
 ```kotlin
-// Scramble words from files/stdin to stdout
+// Scramble from files/stdin to stdout
 fun main(args: Array<String>) {
 
-  // Collect file readers from args/stdin
+  // Collect readers from args/stdin
   val readers =
     if (args.isNotEmpty()) 
       args.map { File(it).reader() }
@@ -639,30 +645,14 @@ The astute reader may have noticed that, unlike in Java, in Kotlin our
 `scrambleWords()` and `main()` functions are not contained in a class. This
 is also true of the `WORD_REGEX` value.
 
-👉 A note on terminology: Kotlin uniformly calls executable units _functions_,
-rather than _methods_. For a function to be deemed a method it must be
-contained in an object or a class; it must have a _target_. 
-
 Functions `scrambleWords` and `main`, as well as value `WORD_REGEX`, belong to
 their enclosing `wscrambler` _package_ and are referred to like thus:
 
 ```kotlin
-wscrambler.scrambleWords("I come in peace")
+wscrambler.scrambleWords("Hey there!")
 ```
 
-Also noticeable is that package value `WORD_REGEX` is `private` and, thus,
-visible only inside the `wscrambler` package.
-
-```kotlin
-package wscrambler
-
-// 4+ latin letters, 2+ distinct inners
-private val WORD_REGEX =
-  """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+"""
-      .toRegex()
-```
-
-So, in Kotlin, a package can directly contain values, variables,
+In general, a Kotlin package can directly contain values, variables,
 functions, objects, classes, annotations; the entire zoo.
 
 Executable statements are _not_ allowed inside packages, though. They can
@@ -707,7 +697,7 @@ object WordScrambler {
 fun main() {
   // Function called w/qualified name
   println(WordScrambler.scrambleWords(
-   "I'm two with nature -- Woody Allen"))
+   "I'm two with nature ― Woody Allen"))
 }
 ```
 
@@ -722,7 +712,7 @@ Stretching out our example we could conceive of an (admittedly smelly)
 ```kotlin
 package scrambler;
 
-class Scrambler(private val regex:Regex) {
+class Scrambler(private val regex:Regex){
   companion object {
     private val WORD_REGEX =
       """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+"""
@@ -753,7 +743,7 @@ class Scrambler(private val regex:Regex){
         private val WORD_REGEX =
             """\p{IsLatin}(\p{IsLatin})\1*(?!\1)\p{IsLatin}\p{IsLatin}+""".toRegex()
 
-        @JvmStatic // A static method
+        @JvmStatic // JVM static method
         // FQN: wscrambler.Scrambler
         fun main(args: Array<String>) {
           println(scramble(
