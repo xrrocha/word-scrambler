@@ -162,7 +162,7 @@ public class WordScrambler {
 }
 ```
 
-For the trained Java eye, the above code should be self-explanatory
+To the trained Java eye, the above code should be self-explanatory
 (or so one can hope 😉)
 
 We offer plenty of clarifying commentary below so read on!
