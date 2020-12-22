@@ -325,11 +325,6 @@ Here, Kotlin is much more concise (and readable) because:
 - All exceptions are treated as unchecked
 - Common lambda patterns, like collecting results in a `String`, are idiomatic
 
-👉 A note on terminology: Kotlin uniformly calls executable units _functions_,
-rather than _methods_. For a function to be deemed a method it must be
-contained in an object or a class; it must have a _target_. Otherwise,
-functions stand on their own.
-
 ### (Far) Fewer Imports!
 
 When presenting the full Java implementation above we omitted imports for
@@ -774,10 +769,6 @@ object WordScrambler {
   }
 }
 ```
-
-👉 Also: classes and functions are public by default (which reduces verbosity.)
-Classes, however, are _closed_ (`final`) by default which discourages
-"unintended" inheritance abuse.
 
 ## Conclusion
 
